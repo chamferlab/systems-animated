@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API Plan 23</title>
+<!--
+  API Plan 23 interactive - hand-built SVG + JavaScript (no Adobe Animate needed).
+
+  EDITING
+    - All wording is in the CONTENT block near the top of the <script>:
+      chapters, steps, component (i) popups, labels.
+    - Illustrative process values are in PROCESS.
+    - Drawing is in the <svg>; coordinates are on a 1600 x 900 stage.
+-->
+<style>
+  :root {
+    --info-bg: #d3ebf8; --info-title: #0a86c8; --text: #1c2630; --muted: #8f9aa4;
+    --metal: #9aa1a8; --metal-dark: #6b737b; --metal-light: #d6dade; --accent: #0a86c8;
+  }
+  html, body { margin: 0; height: 100%; background: #fff; overflow: hidden; }
+  body { font-family: "Fira Sans", "Segoe UI", system-ui, -apple-system, Ubuntu, sans-serif; color: var(--text); }
+  #stage {
+    position: absolute; left: 50%; top: 50%; width: 1600px; height: 900px;
+    transform-origin: 0 0; user-select: none;
+  }
+  svg { position: absolute; inset: 0; width: 1600px; height: 900px; }
+  .title { position: absolute; left: 40px; top: 26px; font-size: 40px; font-weight: 600; font-style: italic; color: var(--info-title); }
+  .title small { display: block; font-size: 20px; font-weight: 500; color: var(--text); font-style: italic; margin-top: -2px; }
+
+  /* seal chamber readout */
+  .card {
+    box-sizing: border-box; position: absolute; left: 40px; top: 130px; width: 290px; padding: 12px 14px 12px;
+    background: #f4f7f9; border: 1px solid #dfe5ea; border-radius: 10px; font-size: 14px;
+  }
+  .card .lbl { color: #5b6875; font-size: 13px; }
+  .card .big { font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .bar { position: relative; height: 10px; border-radius: 5px; margin: 10px 0 4px;
+    background: linear-gradient(90deg, #2f7fd8 15%, #d6e2ec 30%, #f1a03c 50%, #e2412b 80%); }
+  .bar .tsat { position: absolute; top: -4px; bottom: -4px; width: 2px; background: #1c2630; }
+  .bar .dot { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
+    background: #fff; border: 3px solid #1c2630; transition: left .1s linear; }
+  .scale { display: flex; justify-content: space-between; font-size: 11px; color: #5b6875; }
+  .margin { margin-top: 6px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .margin.bad { color: #d0321d; }
+  .note { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* chapter menu */
+  .menu { position: absolute; left: 1300px; top: 110px; border-left: 3px solid #c9cfd4; padding-left: 16px; }
+  .menu button {
+    display: block; background: none; border: 0; padding: 7px 0; font: inherit; font-size: 21px; font-weight: 600;
+    color: var(--muted); cursor: pointer; text-align: left;
+  }
+  .menu button:hover { color: #4f5a64; }
+  .menu button.on { color: var(--text); }
+
+  /* caption / info box */
+  .caption {
+    box-sizing: border-box; position: absolute; left: 1265px; top: 330px; width: 320px; min-height: 250px; padding: 16px 18px 18px;
+    background: var(--info-bg); border-radius: 12px; font-size: 16px; line-height: 1.45;
+  }
+  .caption h3 { margin: 0 0 8px; color: var(--info-title); font-size: 19px; }
+  .caption p { margin: 0 0 8px; }
+  .caption .close { position: absolute; right: 10px; top: 8px; border: 0; background: none; font-size: 22px; cursor: pointer; color: #4f5a64; }
+  .caption .stepno { font-size: 12px; color: #4f6f86; margin-bottom: 2px; }
+  .nav { position: absolute; left: 1265px; top: 805px; width: 320px; display: flex; justify-content: space-between; align-items: center; }
+  .nav button {
+    width: 60px; height: 60px; border-radius: 50%; border: 4px solid #1c2630; background: #fff; cursor: pointer;
+    display: grid; place-items: center; box-shadow: 0 2px 0 #9aa1a8;
+  }
+  .nav button:disabled { opacity: .25; cursor: default; }
+  .tri { width: 0; height: 0; border-top: 12px solid transparent; border-bottom: 12px solid transparent; }
+  .tri.r { border-left: 19px solid #1c2630; margin-left: 5px; }
+  .tri.l { border-right: 19px solid #1c2630; margin-right: 5px; }
+  .nav .lbl { font-size: 15px; color: var(--muted); font-weight: 600; }
+
+  /* (i) buttons */
+  .info {
+    position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%;
+    border: 2.5px solid var(--accent); background: #fff; color: var(--accent); font: italic 700 18px Georgia, serif;
+    cursor: pointer; display: grid; place-items: center; padding: 0; transition: transform .12s;
+  }
+  .info:hover { transform: scale(1.15); }
+  .info.on { background: var(--accent); color: #fff; }
+
+  .tag { position: absolute; font-size: 14px; color: #5b6875; font-weight: 600; pointer-events: none; }
+  .readout {
+    position: absolute; padding: 3px 8px; background: #1c2630; color: #5cff7a; border-radius: 5px;
+    font: 600 18px ui-monospace, "DejaVu Sans Mono", monospace; font-variant-numeric: tabular-nums; pointer-events: none;
+  }
+  .readout.alarm { color: #ff6b57; }
+  .gas-label { font-size: 14px; font-weight: 700; fill: #5b6875; }
+
+  @keyframes pulse { 0%, 100% { opacity: .25; } 50% { opacity: .85; } }
+  .hl { animation: pulse 1.4s ease-in-out infinite; pointer-events: none; }
+</style>
+<script src="../assets/anim-bridge.js"></script>
+</head>
+<body>
+<div id="stage">
+<svg viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg" aria-label="API Plan 23 schematic">
+  <defs>
+    <linearGradient id="gShaft" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5f666d"/><stop offset=".35" stop-color="#c4c9ce"/><stop offset="1" stop-color="#4c5258"/>
+    </linearGradient>
+    <linearGradient id="gShell" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8d949b"/><stop offset=".4" stop-color="#d3d7db"/><stop offset="1" stop-color="#7d848b"/>
+    </linearGradient>
+    <linearGradient id="gCoil" x1="0" y1="0" x2="0" y2="1">
+      <stop id="coilTop" offset="0" stop-color="#e2412b"/><stop id="coilBot" offset="1" stop-color="#2f7fd8"/>
+    </linearGradient>
+    <pattern id="pSpin" width="14" height="30" patternUnits="userSpaceOnUse">
+      <rect width="14" height="30" fill="none"/><path d="M0 30 L14 0" stroke="#ffffff" stroke-opacity=".35" stroke-width="3"/>
+    </pattern>
+    <g id="valveBody">
+      <rect x="-14" y="-11" width="28" height="22" rx="4" fill="#8d949b" stroke="#5f666d" stroke-width="2"/>
+      <circle r="6" fill="#d3d7db" stroke="#5f666d" stroke-width="2"/>
+    </g>
+  </defs>
+
+  <!-- ===== piping (drawn first, under equipment) ===== -->
+  <!-- the circulation loop: hot outlet, cooler coil, cooled return -->
+  <path d="M365 440 V110 H1080 V168" fill="none" stroke="#6b737b" stroke-width="24" stroke-linejoin="round"/>
+  <path d="M1080 545 V840 H490 V760" fill="none" stroke="#6b737b" stroke-width="24" stroke-linejoin="round"/>
+  <path id="pipeHot"  d="M365 440 V110 H1080 V168" fill="none" stroke="#e2412b" stroke-width="18" stroke-linejoin="round"/>
+  <path id="pipeCold" d="M1080 545 V840 H490 V760" fill="none" stroke="#2f7fd8" stroke-width="18" stroke-linejoin="round"/>
+
+  <!-- gas pocket at the high point (venting chapter) -->
+  <g id="gas" opacity="0">
+    <rect id="gasRect" x="800" y="101" width="280" height="18" rx="9" fill="#eef2f5" stroke="#b8c2cb" stroke-width="2"/>
+    <text id="gasText" class="gas-label" x="940" y="92" text-anchor="middle">gas pocket</text>
+  </g>
+
+  <!-- high-point vent -->
+  <g id="vent">
+    <path d="M1000 101 V58" stroke="#8d949b" stroke-width="12"/>
+    <use href="#valveBody" x="1000" y="64"/>
+    <g id="ventLever" transform="translate(1000 64)"><rect x="0" y="-4" width="40" height="8" rx="4" fill="#e8533a"/></g>
+    <path d="M1000 52 V36" stroke="#8d949b" stroke-width="10"/>
+    <g id="ventPuffs"></g>
+  </g>
+
+  <!-- low-point drain -->
+  <g id="drain">
+    <path d="M800 849 V880" stroke="#8d949b" stroke-width="12"/>
+    <use href="#valveBody" x="800" y="872"/>
+    <rect x="806" y="868" width="36" height="8" rx="4" fill="#e8533a"/>
+  </g>
+
+  <!-- temperature indicators -->
+  <g id="tiHotG">
+    <rect x="693" y="92" width="14" height="36" fill="#b0b6bc"/>
+    <path d="M700 92 V70" stroke="#8d949b" stroke-width="8"/>
+    <circle cx="700" cy="44" r="30" fill="#fff" stroke="#8d949b" stroke-width="6"/>
+    <path d="M676 54 A26 26 0 1 1 724 54" fill="none" stroke="#e7ebee" stroke-width="5"/>
+    <line id="needleHot" x1="700" y1="44" x2="700" y2="24" stroke="#1c2630" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="700" cy="44" r="4" fill="#1c2630"/>
+    <text x="700" y="64" font-size="10" text-anchor="middle" fill="#5b6875">°C</text>
+  </g>
+  <g id="tiColdG">
+    <rect x="693" y="822" width="14" height="36" fill="#b0b6bc"/>
+    <path d="M700 822 V806" stroke="#8d949b" stroke-width="8"/>
+    <circle cx="700" cy="776" r="30" fill="#fff" stroke="#8d949b" stroke-width="6"/>
+    <path d="M676 786 A26 26 0 1 1 724 786" fill="none" stroke="#e7ebee" stroke-width="5"/>
+    <line id="needleCold" x1="700" y1="776" x2="700" y2="756" stroke="#1c2630" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="700" cy="776" r="4" fill="#1c2630"/>
+    <text x="700" y="796" font-size="10" text-anchor="middle" fill="#5b6875">°C</text>
+  </g>
+
+  <!-- ===== cooling water ===== -->
+  <path id="cwIn"  d="M1250 500 H1152" fill="none" stroke="#2fb9e8" stroke-width="14"/>
+  <path id="cwOut" d="M1152 205 H1250" fill="none" stroke="#2fb9e8" stroke-width="14"/>
+  <g id="cwValve">
+    <use href="#valveBody" x="1215" y="500"/>
+    <g id="cwLever" transform="translate(1215 500)"><rect x="-4" y="-44" width="8" height="40" rx="4" fill="#e8533a"/></g>
+  </g>
+  <text x="1250" y="530" font-size="12" text-anchor="end" fill="#5b6875" font-weight="600">CW in</text>
+  <text x="1250" y="190" font-size="12" text-anchor="end" fill="#5b6875" font-weight="600">CW out</text>
+
+  <!-- ===== seal cooler ===== -->
+  <g id="cooler">
+    <rect x="1040" y="150" width="80" height="22" rx="4" fill="#7d848b"/>
+    <rect x="1010" y="168" width="140" height="372" rx="22" fill="url(#gShell)" stroke="#5f666d" stroke-width="3"/>
+    <rect id="shellWater" x="1020" y="182" width="120" height="346" rx="14" fill="#bfe9f8" opacity=".75"/>
+    <path id="pipeCoil" d="M1080 168 V190 C1135 198 1135 222 1080 230 C1025 238 1025 262 1080 270 C1135 278 1135 302 1080 310 C1025 318 1025 342 1080 350 C1135 358 1135 382 1080 390 C1025 398 1025 422 1080 430 C1135 438 1135 462 1080 470 C1025 478 1025 502 1080 510 V545"
+          fill="none" stroke="url(#gCoil)" stroke-width="12" stroke-linecap="round"/>
+    <rect x="1040" y="536" width="80" height="16" rx="4" fill="#7d848b"/>
+    <rect x="1030" y="552" width="12" height="40" fill="#7d848b"/><rect x="1118" y="552" width="12" height="40" fill="#7d848b"/>
+    <text x="1096" y="616" font-size="15" font-weight="700" fill="#5b6875">SEAL COOLER</text>
+  </g>
+
+  <!-- ===== pump, seal chamber, bearing housing (cross-section) ===== -->
+  <!-- pumped product -->
+  <rect id="product" x="65" y="360" width="225" height="480" fill="#f6b6a6"/>
+  <rect id="product2" x="28" y="520" width="40" height="160" fill="#f6b6a6"/>
+  <text x="110" y="388" font-size="15" fill="#9b3b2a" font-weight="700">PUMP</text>
+  <text x="110" y="406" font-size="13" fill="#9b3b2a" font-weight="600">pumped fluid</text>
+  <text id="productT" x="110" y="423" font-size="13" fill="#9b3b2a"></text>
+
+  <!-- seal chamber fluid (colour = seal chamber temperature) -->
+  <rect id="chamberTop" x="330" y="468" width="192" height="114" fill="#e2412b"/>
+  <rect id="chamberBot" x="330" y="618" width="192" height="114" fill="#e2412b"/>
+
+  <!-- shaft -->
+  <rect x="150" y="585" width="760" height="30" fill="url(#gShaft)"/>
+  <rect id="shaftSpin" x="150" y="585" width="760" height="30" fill="url(#pSpin)"/>
+  <rect x="868" y="566" width="46" height="68" rx="4" fill="#7d848b"/>
+  <text x="891" y="660" font-size="12" text-anchor="middle" fill="#5b6875">to driver</text>
+
+  <g id="halfTop">
+    <!-- pump casing -->
+    <path d="M28 322 H318 V566 H290 V360 H65 V520 H28 Z" fill="#6b737b"/>
+    <!-- impeller -->
+    <path d="M160 585 V545 Q178 430 246 404 H262 V585 Z" fill="#a7adb3" stroke="#6b737b" stroke-width="2"/>
+    <path d="M190 570 Q205 470 250 430 M215 575 Q225 495 255 460" stroke="#6b737b" stroke-width="3" fill="none"/>
+    <!-- throat bushing -->
+    <rect id="bushTop" x="290" y="566" width="42" height="16" fill="#c8a24a" stroke="#8e7128" stroke-width="1.5"/>
+    <!-- seal chamber housing -->
+    <path d="M318 440 H522 V468 H330 V566 H318 Z" fill="#8d949b"/>
+    <!-- sleeve -->
+    <rect x="334" y="577" width="270" height="8" fill="#b8bec4"/>
+    <!-- pumping ring -->
+    <rect x="345" y="543" width="50" height="34" rx="3" fill="#7d8790"/>
+    <rect id="ringSpinTop" x="345" y="543" width="50" height="34" rx="3" fill="url(#pSpin)"/>
+    <!-- rotating face holder, springs, faces -->
+    <rect x="405" y="522" width="44" height="55" rx="3" fill="#8a939b"/>
+    <path d="M410 532 h34 M410 542 h34 M410 552 h34 M410 562 h34" stroke="#5f666d" stroke-width="2"/>
+    <rect x="449" y="526" width="11" height="48" fill="#3b3f44"/>
+    <rect x="460" y="530" width="11" height="40" fill="#1e2124"/>
+    <!-- gland with stationary insert -->
+    <path d="M471 512 H522 V430 H588 V572 H522 V562 H471 Z" fill="#a3aab1" stroke="#6b737b" stroke-width="2"/>
+    <rect x="532" y="418" width="44" height="14" rx="3" fill="#6b737b"/>
+    <!-- bearing housing -->
+    <path d="M610 470 H840 V560 H610 Z" fill="#d6dade" stroke="#b5bcc2" stroke-width="2"/>
+    <rect x="650" y="560" width="40" height="25" fill="#9aa1a8"/><rect x="790" y="560" width="40" height="25" fill="#9aa1a8"/>
+  </g>
+  <use href="#halfTop" transform="matrix(1 0 0 -1 0 1200)"/>
+  <!-- outlet and return ports -->
+  <rect id="portHot" x="356" y="436" width="18" height="36" fill="#e2412b"/>
+  <rect id="portCold" x="481" y="728" width="18" height="36" fill="#2f7fd8"/>
+  <!-- pump discharge nozzle -->
+  <rect x="120" y="282" width="110" height="42" fill="#6b737b"/><rect x="108" y="270" width="134" height="14" fill="#5f666d"/>
+
+  <!-- vapour bubbles at the faces -->
+  <g id="bubbles"></g>
+  <!-- flow chevrons -->
+  <g id="chevrons"></g>
+  <!-- highlights -->
+  <g id="highlights"></g>
+</svg>
+
+<div class="title">API Plan 23<small>Cooled closed loop</small></div>
+
+<div class="card" id="card">
+  <div class="lbl">Seal chamber temperature</div>
+  <div class="big" id="tSealTxt">-</div>
+  <div class="bar"><div class="tsat" id="tsatMark"></div><div class="dot" id="tDot"></div></div>
+  <div class="scale"><span>0 °C</span><span id="tsatLbl">boiling</span><span>200 °C</span></div>
+  <div class="margin" id="marginTxt">-</div>
+  <div class="note" id="processNote"></div>
+</div>
+
+<div class="menu" id="menu"></div>
+<div class="caption" id="caption"></div>
+<div class="nav">
+  <button id="prev" aria-label="Back"><i class="tri l"></i></button>
+  <span class="lbl" id="navLbl"></span>
+  <button id="next" aria-label="Next"><i class="tri r"></i></button>
+</div>
+
+<div class="tag" style="left:362px;top:770px">SEAL CHAMBER</div>
+<div class="tag" style="left:655px;top:446px">BEARING HOUSING</div>
+<div class="readout" id="roHot" style="left:740px;top:28px">-</div>
+<div class="readout" id="roCold" style="left:740px;top:760px">-</div>
+</div>
+
+<script>
+/* =========================================================================
+   CONTENT - edit wording here
+   ========================================================================= */
+var PROCESS = {
+  product: 150,     // pumped fluid temperature, °C
+  tsat: 160,        // boiling point at seal chamber pressure, °C
+  cwIn: 30,         // cooling water supply, °C
+  sealNormal: 65,   // seal chamber temperature with good cooling, °C
+  sealHot: 172,     // seal chamber temperature with no cooling (heat soak + face heat), °C
+  note: "Illustrative values: hot water service, boiling point 160 °C at seal chamber pressure."
+};
+
+var COMPONENTS = {
+  ring:   { x: 370, y: 515, title: "Pumping ring",
+            text: ["A pumping ring (or scroll) on the rotating part of the seal works as a small pump and drives the circulation around the loop.",
+                   "It develops very little head, so the loop must have low resistance: short, generously sized lines and long-radius bends."] },
+  faces:  { x: 462, y: 494, title: "Seal faces",
+            text: ["The seal faces generate heat. The cooled return enters the seal chamber close to the faces so they always run in cool liquid with a good margin to boiling."] },
+  bush:   { x: 304, y: 534, title: "Throat bushing",
+            text: ["A close-clearance throat bushing separates the seal chamber from the hot pump casing.",
+                   "It limits mixing with the hot pumpage, so only the small volume of fluid in the seal chamber has to be cooled."] },
+  cooler: { x: 1170, y: 380, title: "Seal cooler",
+            text: ["Process fluid flows through the coil (tube side), cooling water through the shell. Cooling water enters at the bottom and leaves at the top, in counter-flow.",
+                   "Install the cooler above the seal with the lines sloping continuously upward from seal to cooler, so gas and vapour rise to the vent."] },
+  vent:   { x: 960, y: 50, title: "High-point vent",
+            text: ["Used to remove gas and vapour from the loop before start-up and after maintenance. A Plan 23 loop that is not vented will not circulate."] },
+  drain:  { x: 760, y: 878, title: "Low-point drain",
+            text: ["Allows the loop and cooler to be drained and flushed for maintenance."] },
+  tiHot:  { x: 655, y: 44, title: "Temperature indicator - cooler inlet",
+            text: ["Shows the temperature leaving the seal. Compare with the cooler outlet: a clear difference confirms the loop is circulating and the cooler is removing heat."] },
+  tiCold: { x: 655, y: 776, title: "Temperature indicator - cooler outlet",
+            text: ["Shows the temperature returning to the seal. A rising trend points to cooling water problems or fouling."] },
+  cw:     { x: 1215, y: 455, title: "Cooling water",
+            text: ["Cooling water supply to the shell side of the seal cooler. Water quality matters: scaling and fouling on the water side slowly reduce the cooler's capacity."] }
+};
+
+/* Each step:  title, text[], hl: components/lines to highlight,
+   set: values applied instantly, run: conditions that then evolve */
+var CHAPTERS = [
+  { name: "Overview", steps: [
+    { title: "Welcome to the Plan 23 interactive",
+      text: ["Plan 23 cools the fluid in the seal chamber in a closed loop. The pumping ring in the seal circulates it through a seal cooler and back to the seal.",
+             "Click on the (i) icons to learn about each component, or use the menu to choose a chapter."],
+      set: { pocket: 0, flow: 1, tSeal: 65, tCold: 40 }, run: { running: true, cw: true, vent: false } }
+  ]},
+  { name: "Basic Function", steps: [
+    { title: "Pumping ring", hl: ["ring"],
+      text: ["The rotating pumping ring pushes the fluid out of the seal chamber through the outlet at the top of the chamber.",
+             "Its head is low, so line sizing and routing matter."],
+      set: { pocket: 0, flow: 1, tSeal: 65, tCold: 40 }, run: { running: true, cw: true, vent: false } },
+    { title: "Hot side", hl: ["pipeHot"],
+      text: ["The fluid leaving the seal carries the heat generated by the seal faces and the heat soaking in from the pump.",
+             "The line rises continuously to the cooler so that gas and vapour can collect at the vent."] },
+    { title: "Seal cooler", hl: ["cooler", "cw"],
+      text: ["In the coil the fluid gives its heat to the cooling water in the shell, in counter-flow.",
+             "Only the seal chamber volume circulates, so the cooler duty is small."] },
+    { title: "Cooled return", hl: ["pipeCold", "faces"],
+      text: ["The cooled fluid returns to the seal chamber close to the seal faces, keeping them well below the boiling point."] },
+    { title: "Throat bushing", hl: ["bush"],
+      text: ["The throat bushing limits exchange with the hot pump casing.",
+             "Unlike Plan 21, which continuously cools product taken from pump discharge, Plan 23 does not recirculate pumped product, so the cooler is smaller and pump efficiency is not affected."] },
+    { title: "Monitoring", hl: ["tiHot", "tiCold"],
+      text: ["The temperature indicators on either side of the cooler show the loop is working: a clear difference between hot and cold side means good circulation and heat removal."] }
+  ]},
+  { name: "Venting", steps: [
+    { title: "Loop not vented", hl: ["vent"],
+      text: ["If the loop is filled but not vented, gas collects at the high point.",
+             "The pumping ring cannot push through a gas pocket: there is no circulation. The seal chamber heats up while the return line stays cold."],
+      set: { pocket: 1, flow: 0, tSeal: 70, tCold: 40 }, run: { running: true, cw: true, vent: false } },
+    { title: "Vent before start-up", hl: ["vent"],
+      text: ["Venting is done before start-up, with the pump filled and pressurised, and again after any maintenance.",
+             "Open the high-point vent until only liquid comes out, then close it."],
+      run: { running: false, cw: true, vent: true } },
+    { title: "Circulation established", hl: ["tiHot", "tiCold"],
+      text: ["With the gas removed, the pumping ring circulates the loop as soon as the pump starts.",
+             "The seal chamber cools down and the two temperature indicators separate."],
+      run: { running: true, cw: true, vent: false } }
+  ]},
+  { name: "Loss of Cooling", steps: [
+    { title: "Normal operation",
+      text: ["The loop circulates and the cooler holds the seal chamber well below the boiling point."],
+      set: { pocket: 0, flow: 1, tSeal: 65, tCold: 40 }, run: { running: true, cw: true, vent: false } },
+    { title: "Cooling water lost", hl: ["cw", "tiCold"],
+      text: ["The cooling water is closed off - or, more gradually, the cooler fouls or scales up.",
+             "The cooler stops removing heat. The return temperature rises towards the outlet temperature and the seal chamber heats up."],
+      run: { running: true, cw: false, vent: false } },
+    { title: "Vapour at the seal faces", hl: ["faces"],
+      text: ["When the seal chamber reaches the boiling point at seal chamber pressure, the liquid film between the faces flashes.",
+             "The faces run dry, wear, heat-check and leak. Watch the margin to boiling in the panel on the left."] },
+    { title: "Restore cooling", hl: ["cw", "tiCold"],
+      text: ["Restore cooling water. Check the temperature difference across the cooler and trend the return temperature to catch fouling early."],
+      run: { running: true, cw: true, vent: false } }
+  ]}
+];
+
+/* =========================================================================
+   ENGINE
+   ========================================================================= */
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = 'http://www.w3.org/2000/svg';
+  var stage = $('stage');
+
+  // ---- fit 1600x900 stage into the window ----
+  function fit() {
+    var s = Math.min(innerWidth / 1600, innerHeight / 900);
+    stage.style.transform = 'scale(' + s + ') translate(-50%, -50%)';
+  }
+  addEventListener('resize', fit); fit();
+
+  // ---- state ----
+  var S = { running: true, cw: true, vent: false, pocket: 0, flow: 1, cwFlow: 1, tSeal: 65, tCold: 40, ventOpen: 0, cwOpen: 1 };
+  var paused = false, speed = 1, spin = 0;
+
+  // ---- colour by temperature ----
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function mix(c1, c2, t) {
+    return 'rgb(' + [0, 1, 2].map(function (i) { return Math.round(lerp(c1[i], c2[i], t)); }).join(',') + ')';
+  }
+  // temperature colour scale: blue (cool) -> pale -> orange -> red (at boiling point)
+  var SCALE = [[30, [47, 127, 216]], [60, [214, 226, 236]], [100, [241, 160, 60]], [160, [226, 65, 43]]];
+  function tColor(t) {
+    var top = PROCESS.tsat / 160;
+    for (var i = 1; i < SCALE.length; i++) {
+      var a = SCALE[i - 1], b = SCALE[i], ta = a[0] * top, tb = b[0] * top;
+      if (t <= tb || i === SCALE.length - 1) return mix(a[1], b[1], Math.max(0, Math.min(1, (t - ta) / (tb - ta))));
+    }
+  }
+
+  // ---- flow chevrons along paths ----
+  var flows = [];
+  function addFlow(pathId, spacing, color, getSpeed) {
+    var p = $(pathId), len = p.getTotalLength(), g = document.createElementNS(NS, 'g'), items = [];
+    $('chevrons').appendChild(g);
+    for (var d = 0; d < len; d += spacing) {
+      var c = document.createElementNS(NS, 'path');
+      c.setAttribute('d', 'M-5 -6 L3 0 L-5 6');
+      c.setAttribute('fill', 'none'); c.setAttribute('stroke', color);
+      c.setAttribute('stroke-width', '3.2'); c.setAttribute('stroke-linecap', 'round'); c.setAttribute('stroke-linejoin', 'round');
+      g.appendChild(c); items.push(c);
+    }
+    // sample the path once (every 2 px) - getPointAtLength is too slow to call every frame
+    var pts = [];
+    for (var L = 0; L <= len + 2; L += 2) { var q = p.getPointAtLength(Math.min(L, len)); pts.push([q.x, q.y]); }
+    flows.push({ pts: pts, len: len, items: items, spacing: spacing, off: 0, g: g, speed: getSpeed, op: -1 });
+  }
+  function drawFlows(dt) {
+    flows.forEach(function (f) {
+      var v = f.speed();
+      var op = Math.round(Math.min(1, v * 1.5) * 100) / 100;
+      if (op !== f.op) { f.g.setAttribute('opacity', op); f.op = op; }
+      if (v < 0.005 && f.drawn) return;          // stopped: nothing moves
+      f.drawn = true;
+      f.off = (f.off + v * 90 * dt) % f.spacing;
+      var n = f.pts.length - 1;
+      f.items.forEach(function (c, i) {
+        var k = Math.min(n - 1, Math.floor(((i * f.spacing + f.off) % f.len) / 2));
+        var a = f.pts[k], b = f.pts[k + 1];
+        var ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
+        c.setAttribute('transform', 'translate(' + a[0].toFixed(1) + ' ' + a[1].toFixed(1) + ') rotate(' + ang.toFixed(0) + ')');
+      });
+    });
+  }
+  var loopSpeed = function () { return S.flow; };
+  addFlow('pipeHot', 46, 'rgba(20,30,40,.6)', loopSpeed);
+  addFlow('pipeCoil', 40, 'rgba(20,30,40,.6)', loopSpeed);
+  addFlow('pipeCold', 46, 'rgba(20,30,40,.6)', loopSpeed);
+  addFlow('cwIn', 34, '#0b5f86', function () { return S.cwFlow; });
+  addFlow('cwOut', 34, '#0b5f86', function () { return S.cwFlow; });
+
+  // ---- (i) buttons ----
+  var activeInfo = null;
+  Object.keys(COMPONENTS).forEach(function (k) {
+    var c = COMPONENTS[k], b = document.createElement('button');
+    b.className = 'info'; b.textContent = 'i'; b.title = c.title; b.dataset.k = k;
+    b.style.left = c.x + 'px'; b.style.top = c.y + 'px';
+    b.onclick = function () { showInfo(activeInfo === k ? null : k); };
+    stage.appendChild(b); c.btn = b;
+  });
+
+  // ---- highlights ----
+  var HL = {
+    ring: [340, 538, 60, 44], faces: [444, 520, 32, 60], bush: [284, 560, 54, 28], cooler: [1002, 144, 156, 456],
+    vent: [978, 30, 66, 80], drain: [780, 850, 70, 40], tiHot: [664, 8, 72, 124], tiCold: [664, 740, 72, 122], cw: [1150, 170, 110, 350]
+  };
+  function setHighlights(list) {
+    var g = $('highlights'); g.innerHTML = '';
+    (list || []).forEach(function (k) {
+      var el;
+      if (HL[k]) {
+        var r = HL[k]; el = document.createElementNS(NS, 'rect');
+        el.setAttribute('x', r[0]); el.setAttribute('y', r[1]); el.setAttribute('width', r[2]); el.setAttribute('height', r[3]);
+        el.setAttribute('rx', 10); el.setAttribute('fill', 'none'); el.setAttribute('stroke', '#0a86c8'); el.setAttribute('stroke-width', 5);
+      } else if ($(k)) {
+        el = document.createElementNS(NS, 'path');
+        el.setAttribute('d', $(k).getAttribute('d')); el.setAttribute('fill', 'none');
+        el.setAttribute('stroke', '#0a86c8'); el.setAttribute('stroke-width', 34); el.setAttribute('stroke-linejoin', 'round');
+        el.setAttribute('stroke-opacity', '.45');
+      }
+      if (el) { el.setAttribute('class', 'hl'); g.appendChild(el); }
+    });
+  }
+
+  // ---- chapters / steps ----
+  var ch = 0, st = 0;
+  var menu = $('menu');
+  CHAPTERS.forEach(function (c, i) {
+    var b = document.createElement('button'); b.textContent = c.name;
+    b.onclick = function () { go(i, 0); }; menu.appendChild(b);
+  });
+  function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
+
+  function renderCaption() {
+    var cap = $('caption');
+    if (activeInfo) {
+      var c = COMPONENTS[activeInfo];
+      cap.innerHTML = '<button class="close" aria-label="Close">×</button><h3>' + esc(c.title) + '</h3>' +
+        c.text.map(function (t) { return '<p>' + esc(t) + '</p>'; }).join('');
+      cap.querySelector('.close').onclick = function () { showInfo(null); };
+    } else {
+      var s = CHAPTERS[ch].steps[st], n = CHAPTERS[ch].steps.length;
+      cap.innerHTML = (n > 1 ? '<div class="stepno">' + esc(CHAPTERS[ch].name) + ' · ' + (st + 1) + ' / ' + n + '</div>' : '') +
+        '<h3>' + esc(s.title) + '</h3>' + s.text.map(function (t) { return '<p>' + esc(t) + '</p>'; }).join('');
+    }
+  }
+  function showInfo(k) {
+    activeInfo = k;
+    Object.keys(COMPONENTS).forEach(function (key) { COMPONENTS[key].btn.classList.toggle('on', key === k); });
+    renderCaption();
+    setHighlights(k ? [k] : CHAPTERS[ch].steps[st].hl);
+  }
+
+  function go(c, s) {
+    ch = c; st = s;
+    // apply all "run" conditions from the chapter start up to this step, and "set" of this step only
+    var steps = CHAPTERS[ch].steps;
+    for (var i = 0; i <= st; i++) if (steps[i].run) Object.assign(S, steps[i].run);
+    if (steps[st].set) Object.assign(S, steps[st].set);
+    if (steps[st].set && 'pocket' in steps[st].set) { S.ventOpen = 0; }
+    activeInfo = null;
+    Object.keys(COMPONENTS).forEach(function (k) { COMPONENTS[k].btn.classList.remove('on'); });
+    Array.prototype.forEach.call(menu.children, function (b, i) { b.classList.toggle('on', i === ch); });
+    renderCaption(); setHighlights(steps[st].hl);
+    var last = ch === CHAPTERS.length - 1 && st === steps.length - 1;
+    $('prev').disabled = ch === 0 && st === 0;
+    $('next').disabled = last;
+    $('navLbl').textContent = last ? '' : (st < steps.length - 1 ? 'Next' : 'Next: ' + CHAPTERS[ch + 1].name);
+  }
+  function step(dir) {
+    var n = CHAPTERS[ch].steps.length;
+    if (dir > 0) { if (st < n - 1) go(ch, st + 1); else if (ch < CHAPTERS.length - 1) go(ch + 1, 0); }
+    else { if (st > 0) go(ch, st - 1); else if (ch > 0) go(ch - 1, CHAPTERS[ch - 1].steps.length - 1); }
+  }
+  $('next').onclick = function () { step(1); };
+  $('prev').onclick = function () { step(-1); };
+  addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') step(1);
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') step(-1);
+  });
+
+  // ---- simple process model ----
+  function approach(v, target, tau, dt) { return v + (target - v) * Math.min(1, dt / tau); }
+  function model(dt) {
+    if (S.vent && S.pocket > 0) S.pocket = Math.max(0, S.pocket - dt * 0.28);
+    S.ventOpen = approach(S.ventOpen, S.vent ? 1 : 0, 0.3, dt);
+    S.cwOpen = approach(S.cwOpen, S.cw ? 1 : 0, 0.3, dt);
+    S.cwFlow = approach(S.cwFlow, S.cw ? 1 : 0, 0.5, dt);
+    var flowTarget = S.running && S.pocket < 0.02 ? 1 : 0;
+    S.flow = approach(S.flow, flowTarget, 0.8, dt);
+    var eff = S.flow * (0.06 + 0.94 * S.cwFlow);
+    var sealTarget = S.running ? lerp(PROCESS.sealHot, PROCESS.sealNormal, eff) : 70;
+    S.tSeal = approach(S.tSeal, sealTarget, S.running ? 5 : 5, dt);
+    var coldTarget = S.flow < 0.1 ? 40 : S.tSeal - eff * (S.tSeal - PROCESS.cwIn) * 0.75;
+    S.tCold = approach(S.tCold, coldTarget, 2.5, dt);
+  }
+
+  // ---- bubbles ----
+  var bubbles = [], puffs = [];
+  function spawn(list, parent, x, y, r, fill) {
+    var c = document.createElementNS(NS, 'circle');
+    c.setAttribute('r', r); c.setAttribute('fill', fill); c.setAttribute('stroke', '#fff'); c.setAttribute('stroke-width', 1.5);
+    parent.appendChild(c); list.push({ el: c, x: x, y: y, life: 0, vx: (Math.random() - .5) * 10 });
+  }
+  function moveBubbles(list, dt, vy, maxLife) {
+    for (var i = list.length - 1; i >= 0; i--) {
+      var b = list[i]; b.life += dt; b.y += vy * dt; b.x += b.vx * dt;
+      b.el.setAttribute('cx', b.x); b.el.setAttribute('cy', b.y);
+      b.el.setAttribute('opacity', Math.max(0, 1 - b.life / maxLife));
+      if (b.life > maxLife) { b.el.remove(); list.splice(i, 1); }
+    }
+  }
+
+  // ---- render ----
+  function needle(id, cx, cy, t) {
+    var a = (-135 + 270 * Math.max(0, Math.min(1, t / 200))) * Math.PI / 180;
+    var el = $(id); el.setAttribute('x2', cx + Math.sin(a) * 22); el.setAttribute('y2', cy - Math.cos(a) * 22);
+  }
+  function render(dt) {
+    var tHot = S.tSeal + 10 * S.flow;
+    var hotC = tColor(tHot), coldC = tColor(S.tCold), sealC = tColor(S.tSeal);
+    $('pipeHot').setAttribute('stroke', hotC); $('portHot').setAttribute('fill', hotC);
+    $('pipeCold').setAttribute('stroke', coldC); $('portCold').setAttribute('fill', coldC);
+    $('chamberTop').setAttribute('fill', sealC); $('chamberBot').setAttribute('fill', sealC);
+    $('coilTop').setAttribute('stop-color', hotC); $('coilBot').setAttribute('stop-color', coldC);
+    $('shellWater').setAttribute('fill', S.cwFlow > 0.5 ? '#bfe9f8' : mix([191, 233, 248], [240, 196, 160], 1 - S.cwFlow));
+    $('cwIn').setAttribute('stroke-opacity', 0.35 + 0.65 * S.cwFlow); $('cwOut').setAttribute('stroke-opacity', 0.35 + 0.65 * S.cwFlow);
+    $('product').setAttribute('fill', '#f6b6a6');
+
+    // gas pocket
+    $('gas').setAttribute('opacity', S.pocket > 0.01 ? 1 : 0);
+    var w = 280 * S.pocket; $('gasRect').setAttribute('x', 1080 - w); $('gasRect').setAttribute('width', Math.max(0, w));
+    $('gasText').setAttribute('x', 1080 - w / 2);
+
+    // valves
+    $('ventLever').setAttribute('transform', 'translate(1000 64) rotate(' + (-90 * S.ventOpen) + ')');
+    $('cwLever').setAttribute('transform', 'translate(1215 500) rotate(' + (90 * (1 - S.cwOpen)) + ')');
+
+    // rotation
+    if (S.running) spin = (spin + dt * 160) % 30;
+    $('shaftSpin').setAttribute('y', 585 - spin);
+    $('shaftSpin').setAttribute('opacity', S.running ? 1 : 0);
+
+    // gauges and readouts
+    needle('needleHot', 700, 44, tHot); needle('needleCold', 700, 776, S.tCold);
+    $('roHot').textContent = Math.round(tHot) + ' °C';
+    $('roCold').textContent = Math.round(S.tCold) + ' °C';
+    $('roCold').classList.toggle('alarm', S.tCold > 90);
+    $('roHot').classList.toggle('alarm', tHot > PROCESS.tsat - 10);
+
+    $('tSealTxt').textContent = Math.round(S.tSeal) + ' °C';
+    $('tSealTxt').style.color = S.tSeal > PROCESS.tsat - 20 ? '#d0321d' : '#1c2630';
+    $('tDot').style.left = (S.tSeal / 200 * 100) + '%';
+    var m = PROCESS.tsat - S.tSeal;
+    $('marginTxt').textContent = m > 0 ? 'Margin to boiling: ' + Math.round(m) + ' °C' : 'Boiling at the seal faces!';
+    $('marginTxt').classList.toggle('bad', m < 20);
+
+    // vapour at the faces
+    if (S.tSeal > PROCESS.tsat - 2 && Math.random() < dt * 30) {
+      var top = Math.random() < .5;
+      spawn(bubbles, $('bubbles'), 455 + Math.random() * 20, top ? 520 + Math.random() * 50 : 630 + Math.random() * 50, 3 + Math.random() * 4, 'rgba(255,255,255,.85)');
+    }
+    moveBubbles(bubbles, dt, -40, 1.2);
+    // gas escaping from vent
+    if (S.ventOpen > 0.5 && S.pocket > 0 && Math.random() < dt * 14) spawn(puffs, $('ventPuffs'), 1000, 34, 4 + Math.random() * 5, 'rgba(200,210,218,.9)');
+    moveBubbles(puffs, dt, -45, 0.9);
+
+    drawFlows(dt);
+  }
+
+  // ---- loop ----
+  var last = performance.now();
+  function frame(now) {
+    var dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (!paused) { dt *= speed; model(dt); render(dt); }
+    requestAnimationFrame(frame);
+  }
+
+  // static texts
+  $('productT').textContent = PROCESS.product + ' °C';
+  $('tsatMark').style.left = (PROCESS.tsat / 200 * 100) + '%';
+  $('tsatLbl').textContent = 'boiling ' + PROCESS.tsat + ' °C';
+  $('processNote').textContent = PROCESS.note;
+
+  // optional deep link: plan-23.html?ch=2&st=1  (chapter / step, 0-based)
+  var q = new URLSearchParams(location.search);
+  var qc = Math.min(CHAPTERS.length - 1, Math.max(0, +q.get('ch') || 0));
+  go(qc, Math.min(CHAPTERS[qc].steps.length - 1, Math.max(0, +q.get('st') || 0)));
+  render(0);
+  requestAnimationFrame(frame);
+
+  // ---- player bridge API (see assets/anim-bridge.js) ----
+  window.AnimAPI = {
+    width: 1600, height: 900,
+    pause: function () { paused = true; },
+    play: function () { paused = false; last = performance.now(); },
+    setSpeed: function (s) { speed = s; },
+    goTo: function (c, s) { go(c, s || 0); }
+  };
+})();
+</script>
+</body>
+</html>

@@ -35,6 +35,45 @@ window.CATEGORIES = [
 window.CATALOG = /*CATALOG-START*/
 [
   {
+    "id": "plan-23",
+    "title": "Plan 23",
+    "subtitle": "Cooled closed loop with pumping ring",
+    "category": "api682",
+    "summary": "The pumping ring circulates seal chamber fluid through a seal cooler and back. Covers basic function, venting before start-up and loss of cooling.",
+    "description": [
+      "Plan 23 cools the fluid in the seal chamber in a closed loop. A pumping ring in the seal circulates it through a seal cooler and back to the seal chamber, while a throat bushing separates the seal chamber from the hot pump casing.",
+      "Because only the small seal chamber volume is cooled, and not a continuous stream of pumped product as in Plan 21, the cooler duty is small and pump efficiency is not affected. It is typical for hot water services such as boiler feed water.",
+      "This animation is built in SVG and JavaScript. Temperatures follow a simple model with illustrative values, and the fluid colour shows temperature."
+    ],
+    "keyPoints": [
+      "The pumping ring has very little head: the loop needs low resistance and lines sloping up to the cooler.",
+      "A loop that hasn't been vented won't circulate. Vent at the high point before start-up.",
+      "The temperature difference across the cooler confirms circulation and heat removal.",
+      "Watch the margin to boiling: lost cooling water or a fouled cooler lets the seal faces flash and run dry."
+    ],
+    "chapters": [
+      "Overview",
+      "Basic Function",
+      "Venting",
+      "Loss of Cooling"
+    ],
+    "howTo": "Use the Next / Back buttons (or the arrow keys) to step through, the menu on the right to switch chapters, and the (i) icons for component details.",
+    "width": 1600,
+    "height": 900,
+    "tags": [
+      "cooling",
+      "seal cooler",
+      "pumping ring",
+      "throat bushing",
+      "hot water",
+      "boiler feed water",
+      "venting",
+      "closed loop",
+      "Plan 21"
+    ],
+    "added": "2026-11-01"
+  },
+  {
     "id": "plan-53a",
     "title": "Plan 53A",
     "subtitle": "Pressurized reservoir, gas-blanketed barrier fluid",
@@ -50,11 +89,21 @@ window.CATALOG = /*CATALOG-START*/
       "Reservoir level is the leakage indicator: a falling level means the seals are consuming barrier fluid.",
       "Watch the circulation direction and the temperature difference between the seal outlet and return lines."
     ],
-    "chapters": ["Overview", "Basic Function", "Normal Refill"],
+    "chapters": [
+      "Overview",
+      "Basic Function",
+      "Normal Refill"
+    ],
     "howTo": "Click to start, then click the (i) icons to learn about each component. Use the menu on the right to switch chapters.",
     "width": 1600,
     "height": 800,
-    "tags": ["barrier", "reservoir", "nitrogen", "arrangement 3", "dual pressurized"]
+    "tags": [
+      "barrier",
+      "reservoir",
+      "nitrogen",
+      "arrangement 3",
+      "dual pressurized"
+    ]
   },
   {
     "id": "plan-53b",
@@ -73,11 +122,27 @@ window.CATALOG = /*CATALOG-START*/
       "Venting the loop at commissioning is critical: trapped gas stops pumping-ring circulation and overheats the seal.",
       "The refill (hand pump / trolley) restores volume and pressure without opening the loop."
     ],
-    "chapters": ["Overview", "Basic Function", "Normal Refill", "Trolley!", "Failure to Refill", "Failure to Vent", "Ambient Influence"],
+    "chapters": [
+      "Overview",
+      "Basic Function",
+      "Normal Refill",
+      "Trolley!",
+      "Failure to Refill",
+      "Failure to Vent",
+      "Ambient Influence"
+    ],
     "howTo": "Click to start, then click the (i) icons to learn about each component. Use the menu on the right to switch chapters.",
     "width": 1600,
     "height": 800,
-    "tags": ["barrier", "accumulator", "bladder", "nitrogen", "cooler", "refill", "arrangement 3"]
+    "tags": [
+      "barrier",
+      "accumulator",
+      "bladder",
+      "nitrogen",
+      "cooler",
+      "refill",
+      "arrangement 3"
+    ]
   },
   {
     "id": "plan-53b-sequence",
@@ -94,11 +159,22 @@ window.CATALOG = /*CATALOG-START*/
       "Pumping in barrier fluid compresses the bladder; the gauge pressure rises as the gas volume shrinks.",
       "The anti-extrusion valve at the bottom stops the bladder being pushed into the outlet."
     ],
-    "chapters": ["Empty", "Pre-charge", "Fill", "Pressurized"],
+    "chapters": [
+      "Empty",
+      "Pre-charge",
+      "Fill",
+      "Pressurized"
+    ],
     "howTo": "Use the rewind, pause and play buttons at the bottom right of the animation to step through the stages.",
     "width": 1300,
     "height": 820,
-    "tags": ["accumulator", "bladder", "pre-charge", "commissioning", "nitrogen"]
+    "tags": [
+      "accumulator",
+      "bladder",
+      "pre-charge",
+      "commissioning",
+      "nitrogen"
+    ]
   },
   {
     "id": "plan-53b-sizing",
@@ -115,11 +191,24 @@ window.CATALOG = /*CATALOG-START*/
       "Ambient temperature shifts the whole curve - a fixed alarm can trip on a cold night or be missed on a hot day.",
       "A floating alarm follows temperature so the usable volume between refills stays consistent."
     ],
-    "chapters": ["Fixed Alarm API 682 - Variable Refill", "Fixed Alarm API 682 - Fixed Refill", "Fixed Alarm FAEP - Variable Refill", "Fixed Alarm FAEP - Fixed Refill", "Floating Alarm API 682"],
+    "chapters": [
+      "Fixed Alarm API 682 - Variable Refill",
+      "Fixed Alarm API 682 - Fixed Refill",
+      "Fixed Alarm FAEP - Variable Refill",
+      "Fixed Alarm FAEP - Fixed Refill",
+      "Floating Alarm API 682"
+    ],
     "howTo": "Use the play and rewind buttons under the graph, and the menu on the right to pick a scenario.",
     "width": 1920,
     "height": 1080,
-    "tags": ["accumulator", "sizing", "alarm", "temperature", "ambient", "refill"]
+    "tags": [
+      "accumulator",
+      "sizing",
+      "alarm",
+      "temperature",
+      "ambient",
+      "refill"
+    ]
   },
   {
     "id": "plan-53c",
@@ -137,11 +226,21 @@ window.CATALOG = /*CATALOG-START*/
       "Accumulator level indicates barrier fluid consumption; the hand pump refills it.",
       "Look at the API 682 cooler chapter for how heat is removed from the loop."
     ],
-    "chapters": ["Overview", "Basic Function", "API 682 Cooler"],
+    "chapters": [
+      "Overview",
+      "Basic Function",
+      "API 682 Cooler"
+    ],
     "howTo": "Click the (i) icons and magnifier icons for details. Use the menu on the right and the play button to move through chapters.",
     "width": 1920,
     "height": 1080,
-    "tags": ["barrier", "piston accumulator", "reference line", "cooler", "arrangement 3"]
+    "tags": [
+      "barrier",
+      "piston accumulator",
+      "reference line",
+      "cooler",
+      "arrangement 3"
+    ]
   },
   {
     "id": "dgs-aux-system",
@@ -158,11 +257,28 @@ window.CATALOG = /*CATALOG-START*/
       "The primary vent is the main leakage path and the key monitoring point for seal health.",
       "Separation gas (usually nitrogen or air) is supplied to the separation seal to keep bearing oil away from the gas seal."
     ],
-    "chapters": ["Overview", "Basic Function", "Primary Gas Supply", "Primary Vent", "Secondary Gas Supply", "Secondary Vent", "Separation Gas Supply"],
+    "chapters": [
+      "Overview",
+      "Basic Function",
+      "Primary Gas Supply",
+      "Primary Vent",
+      "Secondary Gas Supply",
+      "Secondary Vent",
+      "Separation Gas Supply"
+    ],
     "howTo": "Click to start, then use the menu on the right to step through each gas path. Click the (i) icons for details.",
     "width": 1920,
     "height": 1082,
-    "tags": ["dry gas seal", "DGS", "compressor", "tandem", "seal gas", "vent", "separation gas", "nitrogen"]
+    "tags": [
+      "dry gas seal",
+      "DGS",
+      "compressor",
+      "tandem",
+      "seal gas",
+      "vent",
+      "separation gas",
+      "nitrogen"
+    ]
   },
   {
     "id": "dgs-standstill-seal",
@@ -179,11 +295,21 @@ window.CATALOG = /*CATALOG-START*/
       "Activation is pneumatic, controlled from the panel - watch the pressure gauges and indicator lamp.",
       "Deactivation must be confirmed before the compressor restarts."
     ],
-    "chapters": ["Activation", "Deactivation"],
+    "chapters": [
+      "Activation",
+      "Deactivation"
+    ],
     "howTo": "Use the Next button to advance and the Activation / Deactivation menu to switch phases. Click the (i) icons for details.",
     "width": 2226,
     "height": 1080,
-    "tags": ["dry gas seal", "DGS", "compressor", "standstill", "control panel", "shutdown"]
+    "tags": [
+      "dry gas seal",
+      "DGS",
+      "compressor",
+      "standstill",
+      "control panel",
+      "shutdown"
+    ]
   }
 ]
 /*CATALOG-END*/;

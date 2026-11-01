@@ -62,3 +62,18 @@ Only three things - the animation itself is untouched:
 ## Player shortcuts
 
 `Space` pause/play · `[` / `]` slower/faster · `R` restart · `F` full screen · `I` notes panel
+
+## Hand-built animations (no Adobe Animate)
+
+`animations/plan-23.html` is built directly in SVG + JavaScript and is the template for
+new animations. Everything is in that one file:
+
+- **Wording**: the `PROCESS`, `COMPONENTS` and `CHAPTERS` blocks at the top of the `<script>`
+  (chapter steps, (i) popups, illustrative temperatures).
+- **Drawing**: the `<svg>` on a 1600 × 900 stage.
+- **Deep link to a step** (handy for review): `animations/plan-23.html?ch=2&st=1`
+  (chapter and step, counted from 0). Arrow keys step forward and back.
+
+It works with the player through `window.AnimAPI` (see `assets/anim-bridge.js`).
+To add one to the library, add its entry in `assets/catalog.js` and make a thumbnail with
+`python3 tools/add_animation.py --thumb-only --id <id>`.

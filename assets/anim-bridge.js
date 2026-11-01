@@ -4,6 +4,11 @@
  * Lets the site's player page control the animation through postMessage
  * (works from file:// as well as from a web server).
  *
+ * Works with two kinds of animation:
+ *   - Adobe Animate / CreateJS exports (uses the global `stage` and `createjs`)
+ *   - hand-built animations that define  window.AnimAPI = { width, height,
+ *     pause(), play(), setSpeed(s) }  (e.g. the SVG animations like plan-23)
+ *
  * Messages in  (from player):  { target: 'anim-bridge', cmd: 'pause' | 'play' | 'toggle' | 'speed' | 'restart', value }
  * Messages out (to player):    { source: 'anim-bridge', type: 'ready' | 'state' | 'key', ... }
  */
@@ -31,8 +36,9 @@
   }
 
   function setPaused(p) {
-    if (!window.stage) return;
     paused = !!p;
+    if (window.AnimAPI) { paused ? AnimAPI.pause() : AnimAPI.play(); sendState(); return; }
+    if (!window.stage) return;
     // Stage keeps redrawing (hover still works) but timelines stop advancing.
     stage.tickEnabled = !paused;
     sendState();
@@ -41,11 +47,18 @@
   function setSpeed(s) {
     s = Math.max(0.1, Math.min(4, Number(s) || 1));
     speed = s;
+    if (window.AnimAPI) { AnimAPI.setSpeed(s); sendState(); return; }
     createjs.Ticker.framerate = baseFps * speed;
     sendState();
   }
 
   function ready() {
+    if (window.AnimAPI) {
+      document.addEventListener('mousedown', function () { if (paused) setPaused(false); }, true);
+      post({ type: 'ready', width: AnimAPI.width, height: AnimAPI.height });
+      sendState();
+      return;
+    }
     if (!window.stage || !window.createjs) return setTimeout(ready, 50);
     var p = props() || {};
     baseFps = p.fps || createjs.Ticker.framerate || 30;

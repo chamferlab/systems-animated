@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seal Systems Animation Library</title>
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js"></script>
+<script src="assets/catalog.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="index.html" id="brand"></a>
+  <span class="spacer"></span>
+  <button class="icon-btn" id="themeBtn" title="Toggle light / dark" aria-label="Toggle light or dark theme"></button>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1 id="siteTitle"></h1>
+    <p id="siteTagline"></p>
+  </section>
+
+  <div class="toolbar">
+    <input class="search" id="q" type="search" placeholder="Search plans, components, topics…" aria-label="Search animations">
+    <div class="chips" id="chips" role="group" aria-label="Filter by category"></div>
+  </div>
+
+  <div id="results"></div>
+
+  <footer class="foot">
+    To add an animation: export from Adobe Animate (HTML5 Canvas), then run
+    <code>python3 tools/add_animation.py &lt;file.html&gt; --id &lt;id&gt; --title "…" --category &lt;category&gt;</code>
+    and fill in the text in <code>assets/catalog.js</code>. See <code>README.md</code>.
+  </footer>
+</main>
+
+<script>
+(function () {
+  var S = window.Site, esc = S.esc;
+  var items = window.CATALOG || [], cats = window.CATEGORIES || [];
+  var state = { cat: 'all', q: '' };
+
+  document.title = window.SITE.title;
+  document.getElementById('brand').innerHTML = S.icons.logo + '<span class="name">' + esc(window.SITE.title) + '</span>';
+  document.getElementById('siteTitle').textContent = window.SITE.title;
+  document.getElementById('siteTagline').textContent = window.SITE.tagline;
+  var themeBtn = document.getElementById('themeBtn');
+  themeBtn.innerHTML = S.icons.theme;
+  themeBtn.onclick = S.toggleTheme;
+
+  // category chips (only categories that have items, plus "All")
+  var chips = document.getElementById('chips');
+  var used = cats.filter(function (c) { return items.some(function (a) { return a.category === c.id; }); });
+  [{ id: 'all', name: 'All' }].concat(used).forEach(function (c) {
+    var n = c.id === 'all' ? items.length : items.filter(function (a) { return a.category === c.id; }).length;
+    var b = document.createElement('button');
+    b.className = 'chip'; b.dataset.cat = c.id;
+    b.textContent = c.name + ' · ' + n;
+    b.onclick = function () { state.cat = c.id; location.hash = c.id === 'all' ? '' : c.id; render(); };
+    chips.appendChild(b);
+  });
+
+  var q = document.getElementById('q');
+  q.addEventListener('input', function () { state.q = q.value.trim().toLowerCase(); render(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === '/' && document.activeElement !== q) { e.preventDefault(); q.focus(); }
+  });
+
+  function matches(a) {
+    if (state.cat !== 'all' && a.category !== state.cat) return false;
+    if (!state.q) return true;
+    var hay = [a.title, a.subtitle, a.summary, (a.tags || []).join(' '), (a.chapters || []).join(' '),
+      (a.description || []).join(' '), S.category(a.category).name].join(' ').toLowerCase();
+    return state.q.split(/\s+/).every(function (w) { return hay.indexOf(w) !== -1; });
+  }
+
+  function card(a) {
+    var tags = (a.chapters && a.chapters.length ? '<span class="tag">' + a.chapters.length + ' chapters</span>' : '');
+    return '<article class="card"><a href="view.html?id=' + encodeURIComponent(a.id) + '">' +
+      '<div class="thumb"><img loading="lazy" src="thumbs/' + esc(a.id) + '.png" alt="" onerror="this.style.visibility=\'hidden\'">' +
+      '<div class="play"><span>' + S.icons.play.replace('<svg', '<svg width="22" height="22"') + '</span></div></div>' +
+      '<div class="card-body"><h3>' + esc(a.title) + '</h3>' +
+      (a.subtitle ? '<p class="sub">' + esc(a.subtitle) + '</p>' : '') +
+      '<p class="summary">' + esc(a.summary) + '</p>' +
+      '<div class="meta"><span class="tag cat">' + esc(S.category(a.category).name) + '</span>' + tags +
+      (a.status === 'draft' ? '<span class="badge-draft">Work in progress</span>' : '') +
+      '</div></div></a></article>';
+  }
+
+  function render() {
+    Array.prototype.forEach.call(chips.children, function (b) {
+      b.setAttribute('aria-pressed', b.dataset.cat === state.cat ? 'true' : 'false');
+    });
+    var list = items.filter(matches), html = '';
+    if (!list.length) {
+      html = '<p class="empty">No animations match “' + esc(state.q) + '”.</p>';
+    } else {
+      var groups = state.cat === 'all' ? used : used.filter(function (c) { return c.id === state.cat; });
+      groups.forEach(function (c) {
+        var g = list.filter(function (a) { return a.category === c.id; });
+        if (!g.length) return;
+        html += '<div class="section-head"><h2>' + esc(c.name) + '</h2>' + (c.blurb ? '<p>' + esc(c.blurb) + '</p>' : '') + '</div>' +
+          '<div class="grid">' + g.map(card).join('') + '</div>';
+      });
+      // items with an unknown category still show up
+      var orphan = list.filter(function (a) { return !cats.some(function (c) { return c.id === a.category; }); });
+      if (orphan.length && state.cat === 'all') html += '<div class="section-head"><h2>Other</h2></div><div class="grid">' + orphan.map(card).join('') + '</div>';
+    }
+    document.getElementById('results').innerHTML = html;
+  }
+
+  var h = location.hash.slice(1);
+  if (h && used.some(function (c) { return c.id === h; })) state.cat = h;
+  render();
+})();
+</script>
+</body>
+</html>

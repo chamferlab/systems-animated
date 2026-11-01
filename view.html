@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Animation</title>
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js"></script>
+<script src="assets/catalog.js"></script>
+</head>
+<body class="viewer">
+<header class="topbar">
+  <a class="icon-btn" href="index.html" id="backBtn" title="Back to library" aria-label="Back to library"></a>
+  <div class="title"><h1 id="title"></h1><p id="subtitle"></p></div>
+  <span class="spacer"></span>
+  <a class="icon-btn" id="prevBtn" title="Previous animation" aria-label="Previous animation"></a>
+  <a class="icon-btn" id="nextBtn" title="Next animation" aria-label="Next animation"></a>
+  <button class="icon-btn" id="panelBtn" title="Show / hide notes (I)" aria-label="Toggle notes panel"></button>
+  <button class="icon-btn" id="themeBtn" title="Toggle light / dark" aria-label="Toggle light or dark theme"></button>
+</header>
+
+<div class="layout">
+  <div class="stage-col">
+    <div class="stage-area" id="area">
+      <div class="stage" id="stage">
+        <div class="loading" id="loading"><div><div class="spinner"></div>Loading animation…</div></div>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="group">
+        <button class="icon-btn" id="playBtn" title="Pause / play (Space)" aria-label="Pause"></button>
+        <button class="icon-btn" id="restartBtn" title="Restart (R)" aria-label="Restart"></button>
+      </div>
+      <div class="group">
+        <label for="speed">Speed</label>
+        <div class="seg" id="speed" role="group" aria-label="Playback speed"></div>
+      </div>
+      <span class="spacer"></span>
+      <span class="kbd-hint"><kbd>Space</kbd> pause · <kbd>[</kbd> <kbd>]</kbd> speed · <kbd>R</kbd> restart · <kbd>F</kbd> full screen</span>
+      <a class="icon-btn" id="openBtn" target="_blank" title="Open the animation on its own" aria-label="Open in new tab"></a>
+      <button class="icon-btn" id="fullBtn" title="Full screen (F)" aria-label="Full screen"></button>
+    </div>
+  </div>
+  <aside class="panel" id="panel"></aside>
+</div>
+
+<script>
+(function () {
+  var S = window.Site, esc = S.esc, I = S.icons;
+  var items = window.CATALOG || [];
+  var id = new URLSearchParams(location.search).get('id');
+  var a = S.find(id);
+  var $ = function (x) { return document.getElementById(x); };
+
+  $('backBtn').innerHTML = I.back;
+  $('themeBtn').innerHTML = I.theme; $('themeBtn').onclick = S.toggleTheme;
+  $('panelBtn').innerHTML = I.info;
+  $('restartBtn').innerHTML = I.restart;
+  $('fullBtn').innerHTML = I.full;
+  $('openBtn').innerHTML = I.open;
+  $('prevBtn').innerHTML = I.back;
+  $('nextBtn').innerHTML = I.next;
+
+  if (!a) {
+    $('title').textContent = 'Animation not found';
+    $('stage').innerHTML = '<div class="loading">No animation with id “' + esc(id) + '”. <a href="index.html">Back to the library</a></div>';
+    return;
+  }
+
+  document.title = a.title + ' · ' + window.SITE.title;
+  $('title').textContent = a.title;
+  $('subtitle').textContent = [S.category(a.category).name, a.subtitle].filter(Boolean).join(' · ');
+
+  // previous / next in catalog order
+  var idx = items.indexOf(a);
+  function link(btn, other) {
+    if (!other) { btn.style.visibility = 'hidden'; return; }
+    btn.href = 'view.html?id=' + encodeURIComponent(other.id);
+    btn.title = btn.title + ': ' + other.title;
+  }
+  link($('prevBtn'), items[idx - 1]);
+  link($('nextBtn'), items[idx + 1]);
+
+  // ---------- side panel ----------
+  var p = '';
+  if (a.status === 'draft') p += '<p><span class="badge-draft">Work in progress</span></p>';
+  if (a.howTo) p += '<h2>How to use</h2><div class="howto">' + esc(a.howTo) + '</div>';
+  if (a.description && a.description.length) p += '<h2>About</h2>' + a.description.map(function (t) { return '<p>' + esc(t) + '</p>'; }).join('');
+  if (a.keyPoints && a.keyPoints.length) p += '<h2>What to look for</h2><ul>' + a.keyPoints.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>';
+  if (a.chapters && a.chapters.length) p += '<h2>Chapters in this animation</h2><ol>' + a.chapters.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ol>';
+  var related = items.filter(function (o) { return o !== a && o.category === a.category; });
+  if (related.length) p += '<h2>More in ' + esc(S.category(a.category).name) + '</h2><div class="nav-links">' +
+    related.map(function (o) { return '<a href="view.html?id=' + encodeURIComponent(o.id) + '">' + esc(o.title) + (o.subtitle ? '<small>' + esc(o.subtitle) + '</small>' : '') + '</a>'; }).join('') + '</div>';
+  $('panel').innerHTML = p;
+
+  var panelOpen = S.get('seal-lib-panel') !== 'closed';
+  function setPanel(open) {
+    panelOpen = open;
+    $('panel').hidden = !open;
+    $('panelBtn').setAttribute('aria-pressed', open ? 'true' : 'false');
+    S.set('seal-lib-panel', open ? 'open' : 'closed');
+    fit();
+  }
+  $('panelBtn').onclick = function () { setPanel(!panelOpen); };
+
+  // ---------- stage ----------
+  var src = 'animations/' + encodeURIComponent(a.id) + '.html';
+  $('openBtn').href = src;
+  var ratio = (a.width && a.height) ? a.width / a.height : 16 / 9;
+  var frame = document.createElement('iframe');
+  frame.title = a.title;
+  frame.src = src;
+  frame.setAttribute('allowfullscreen', '');
+  $('stage').insertBefore(frame, $('loading'));
+
+  function fit() {
+    var area = $('area'), cs = getComputedStyle(area);
+    var w = area.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    var h = area.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    if (window.matchMedia('(max-width: 900px)').matches) h = Infinity; // stacked layout: width decides
+    var sw = Math.min(w, h * ratio), sh = sw / ratio;
+    $('stage').style.width = Math.floor(sw) + 'px';
+    $('stage').style.height = Math.floor(sh) + 'px';
+  }
+  if (window.ResizeObserver) new ResizeObserver(fit).observe($('area')); else window.addEventListener('resize', fit);
+
+  // ---------- controls (talk to anim-bridge.js inside the iframe) ----------
+  var paused = false, speed = 1, speeds = [0.25, 0.5, 1, 1.5, 2];
+  function send(cmd, value) { try { frame.contentWindow.postMessage({ target: 'anim-bridge', cmd: cmd, value: value }, '*'); } catch (e) {} }
+
+  speeds.forEach(function (s) {
+    var b = document.createElement('button');
+    b.textContent = s + '×'; b.dataset.s = s;
+    b.onclick = function () { send('speed', s); };
+    $('speed').appendChild(b);
+  });
+  function showState() {
+    $('playBtn').innerHTML = paused ? I.play : I.pause;
+    $('playBtn').setAttribute('aria-label', paused ? 'Play' : 'Pause');
+    $('playBtn').setAttribute('aria-pressed', paused ? 'true' : 'false');
+    Array.prototype.forEach.call($('speed').children, function (b) {
+      b.setAttribute('aria-pressed', Number(b.dataset.s) === speed ? 'true' : 'false');
+    });
+  }
+  showState();
+
+  function restart() { $('loading').classList.remove('hide'); paused = false; speed = 1; showState(); send('restart'); }
+  function stepSpeed(dir) {
+    var i = speeds.indexOf(speed); if (i < 0) i = 2;
+    send('speed', speeds[Math.max(0, Math.min(speeds.length - 1, i + dir))]);
+  }
+  function toggleFull() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if ($('stage').requestFullscreen) $('stage').requestFullscreen();
+  }
+  $('playBtn').onclick = function () { send('toggle'); };
+  $('restartBtn').onclick = restart;
+  $('fullBtn').onclick = toggleFull;
+
+  function handleKey(k) {
+    if (k === ' ') send('toggle');
+    else if (k === 'r' || k === 'R') restart();
+    else if (k === 'f' || k === 'F') toggleFull();
+    else if (k === '[') stepSpeed(-1);
+    else if (k === ']') stepSpeed(1);
+    else if (k === 'i' || k === 'I') setPanel(!panelOpen);
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    var t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+    if (e.key === ' ' && t && t.tagName === 'BUTTON') return; // let buttons handle space themselves
+    if ([' ', 'r', 'R', 'f', 'F', '[', ']', 'i', 'I'].indexOf(e.key) !== -1) { e.preventDefault(); handleKey(e.key); }
+  });
+
+  var readyTimer = setTimeout(function () { $('loading').classList.add('hide'); }, 15000);
+  window.addEventListener('message', function (e) {
+    if (e.source !== frame.contentWindow) return;
+    var d = e.data || {};
+    if (d.source !== 'anim-bridge') return;
+    if (d.type === 'ready') {
+      clearTimeout(readyTimer);
+      $('loading').classList.add('hide');
+      if (d.width && d.height) { ratio = d.width / d.height; fit(); }
+    } else if (d.type === 'state') {
+      paused = d.paused; speed = d.speed; showState();
+    } else if (d.type === 'key') {
+      handleKey(d.key);
+    }
+  });
+
+  setPanel(panelOpen);
+  frame.addEventListener('load', function () { try { frame.contentWindow.focus(); } catch (e) {} });
+})();
+</script>
+</body>
+</html>

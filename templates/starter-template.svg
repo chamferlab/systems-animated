@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  STARTER TEMPLATE for hand-built animations  (1980 x 1080 px)
+
+  - Draw in the layers below. Layers starting with "_" are guides only and are ignored.
+  - Give an ID (Ctrl+Shift+O → ID → Set) to every object that should move or change.
+  - Everything in the "EXAMPLE" groups can be deleted or reused.
+-->
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   width="1980"
+   height="1080"
+   viewBox="0 0 1980 1080"
+   version="1.1"
+   id="svg-root">
+  <sodipodi:namedview
+     id="namedview"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="1"
+     inkscape:pagecheckerboard="false"
+     inkscape:document-units="px"
+     inkscape:zoom="0.6"
+     inkscape:cx="990"
+     inkscape:cy="540"
+     inkscape:current-layer="layer-equipment"
+     showgrid="false"
+     showguides="true">
+    <!-- reserved zones: drawing area ends at x=1520, right panel from x=1560 -->
+    <sodipodi:guide position="1520,1080" orientation="1,0" id="guide-draw-right" inkscape:label="drawing area right edge" inkscape:color="rgb(10,134,200)"/>
+    <sodipodi:guide position="1560,1080" orientation="1,0" id="guide-panel-left" inkscape:label="right panel" inkscape:color="rgb(10,134,200)"/>
+    <sodipodi:guide position="0,950" orientation="0,-1" id="guide-title-bottom" inkscape:label="title area bottom" inkscape:color="rgb(10,134,200)"/>
+    <sodipodi:guide position="40,1080" orientation="1,0" id="guide-margin-left" inkscape:label="left margin" inkscape:color="rgb(200,200,200)"/>
+    <sodipodi:guide position="0,40" orientation="0,-1" id="guide-margin-bottom" inkscape:label="bottom margin" inkscape:color="rgb(200,200,200)"/>
+  </sodipodi:namedview>
+
+  <!-- ===================================================================== -->
+  <!-- DRAWING LAYERS (bottom to top)                                         -->
+  <!-- ===================================================================== -->
+  <g inkscape:groupmode="layer" id="layer-background" inkscape:label="background">
+    <rect id="bg" x="0" y="0" width="1980" height="1080" fill="#ffffff"/>
+  </g>
+
+  <g inkscape:groupmode="layer" id="layer-piping" inkscape:label="piping">
+    <!-- EXAMPLE pipe: ONE path, stroke only, drawn in the direction the fluid flows -->
+    <g id="example-piping" inkscape:label="EXAMPLE - delete">
+      <path id="pipe-example-supply" d="M 300,820 H 620 V 520 H 900" fill="none" stroke="#f2c94c" stroke-width="18" stroke-linejoin="round" stroke-linecap="butt" inkscape:label="pipe-example-supply"/>
+      <path id="pipe-example-return" d="M 1060,700 V 900 H 300" fill="none" stroke="#5aa9e6" stroke-width="18" stroke-linejoin="round" stroke-linecap="butt" inkscape:label="pipe-example-return"/>
+      <text x="640" y="500" font-family="sans-serif" font-size="15" fill="#5b6875">pipe-example-supply (flow →)</text>
+      <text x="320" y="940" font-family="sans-serif" font-size="15" fill="#5b6875">pipe-example-return (flows right → left)</text>
+    </g>
+  </g>
+
+  <g inkscape:groupmode="layer" id="layer-fluids" inkscape:label="fluids">
+    <g id="example-fluids" inkscape:label="EXAMPLE - delete">
+      <!-- fluid region inside the vessel -->
+      <rect id="fluid-example-vessel" x="920" y="420" width="280" height="300" rx="30" fill="#cfe9f7" inkscape:label="fluid-example-vessel"/>
+      <!-- level: full height of the possible liquid column; code scales it from the bottom -->
+      <rect id="level-example" x="920" y="520" width="280" height="200" fill="#f2c94c" inkscape:label="level-example"/>
+    </g>
+  </g>
+
+  <g inkscape:groupmode="layer" id="layer-equipment" inkscape:label="equipment">
+    <g id="example-equipment" inkscape:label="EXAMPLE - delete">
+      <!-- vessel shell (static: no ID needed) -->
+      <rect x="900" y="400" width="320" height="340" rx="40" fill="none" stroke="#6b737b" stroke-width="20"/>
+      <text x="1240" y="730" font-family="sans-serif" font-size="16" fill="#5b6875">vessel shell: static artwork, no ID needed</text>
+
+      <!-- gauge (static dial) -->
+      <circle cx="620" cy="400" r="46" fill="#ffffff" stroke="#8d949b" stroke-width="8"/>
+      <rect x="612" y="446" width="16" height="66" fill="#8d949b"/>
+    </g>
+  </g>
+
+  <g inkscape:groupmode="layer" id="layer-moving" inkscape:label="moving parts">
+    <g id="example-moving" inkscape:label="EXAMPLE - delete">
+      <!-- VALVE: group with body + lever group + pivot circle -->
+      <g id="valve-example" inkscape:label="valve-example">
+        <rect x="430" y="805" width="44" height="30" rx="5" fill="#8d949b" stroke="#5f666d" stroke-width="2"/>
+        <g id="valve-example-lever" inkscape:label="valve-example-lever">
+          <rect x="448" y="760" width="10" height="56" rx="5" fill="#e8533a"/>
+        </g>
+        <circle id="valve-example-pivot" cx="452" cy="820" r="4" fill="#1c2630" inkscape:label="valve-example-pivot"/>
+      </g>
+      <text x="452" y="870" font-family="sans-serif" font-size="14" fill="#5b6875" text-anchor="middle">valve-example (lever drawn OPEN)</text>
+
+      <!-- NEEDLE: pointing at the gauge ZERO position + pivot -->
+      <g id="needle-example" inkscape:label="needle-example">
+        <path d="M 620,400 L 590,425" stroke="#1c2630" stroke-width="5" stroke-linecap="round" fill="none"/>
+      </g>
+      <circle id="needle-example-pivot" cx="620" cy="400" r="6" fill="#1c2630" inkscape:label="needle-example-pivot"/>
+      <text x="690" y="380" font-family="sans-serif" font-size="14" fill="#5b6875">needle-example (drawn at zero)</text>
+
+      <!-- LAMP -->
+      <circle id="lamp-example" cx="1260" cy="420" r="16" fill="#3cc35a" stroke="#1c2630" stroke-width="3" inkscape:label="lamp-example"/>
+      <text x="1290" y="426" font-family="sans-serif" font-size="14" fill="#5b6875">lamp-example</text>
+
+      <!-- READOUT box -->
+      <rect id="readout-example" x="680" y="420" width="110" height="34" rx="5" fill="#1c2630" inkscape:label="readout-example"/>
+
+      <!-- SHOW-ONLY-IN-SOME-STEPS group -->
+      <g id="show-example-gas" inkscape:label="show-example-gas">
+        <ellipse cx="1060" cy="440" rx="110" ry="14" fill="#eef2f5" stroke="#b8c2cb" stroke-width="2"/>
+        <text x="1060" y="446" font-family="sans-serif" font-size="13" fill="#5b6875" text-anchor="middle">show-example-gas</text>
+      </g>
+    </g>
+  </g>
+
+  <g inkscape:groupmode="layer" id="layer-labels" inkscape:label="labels">
+    <g id="example-labels" inkscape:label="EXAMPLE - delete">
+      <text id="label-example" x="1060" y="380" font-family="sans-serif" font-size="20" font-weight="bold" fill="#5b6875" text-anchor="middle">RESERVOIR</text>
+    </g>
+  </g>
+
+  <g inkscape:groupmode="layer" id="layer-info" inkscape:label="info markers">
+    <g id="example-info" inkscape:label="EXAMPLE - delete">
+      <!-- (i) buttons are created by code at the centre of each info-… marker -->
+      <circle id="info-example-vessel" cx="1240" cy="560" r="15" fill="none" stroke="#0a86c8" stroke-width="3" inkscape:label="info-example-vessel"/>
+      <circle id="info-example-valve" cx="500" cy="770" r="15" fill="none" stroke="#0a86c8" stroke-width="3" inkscape:label="info-example-valve"/>
+      <text x="1262" y="566" font-family="sans-serif" font-size="14" fill="#0a86c8">info-example-vessel</text>
+    </g>
+  </g>
+  <!-- ===================================================================== -->
+  <!-- _GUIDES: reserved zones and cheat sheet (ignored by the animation)      -->
+  <!-- ===================================================================== -->
+  <g inkscape:groupmode="layer" id="layer-guides" inkscape:label="_guides (ignored - hide or delete)" sodipodi:insensitive="true">
+    <!-- title zone -->
+    <rect x="40" y="30" width="700" height="100" rx="8" fill="#0a86c8" fill-opacity="0.06" stroke="#0a86c8" stroke-dasharray="8 6" stroke-width="2"/>
+    <text x="56" y="70" font-family="sans-serif" font-size="22" fill="#0a86c8">TITLE ZONE (the title is added by code - keep clear)</text>
+    <text x="56" y="100" font-family="sans-serif" font-size="16" fill="#0a86c8">e.g. "API Plan 53A" + subtitle</text>
+
+    <!-- right panel -->
+    <rect x="1560" y="30" width="390" height="1020" rx="10" fill="#0a86c8" fill-opacity="0.04" stroke="#0a86c8" stroke-dasharray="8 6" stroke-width="2"/>
+    <text x="1580" y="70" font-family="sans-serif" font-size="20" fill="#0a86c8" font-weight="bold">RIGHT PANEL (added by code)</text>
+    <rect x="1580" y="110" width="350" height="300" rx="8" fill="none" stroke="#0a86c8" stroke-dasharray="4 4"/>
+    <text x="1600" y="150" font-family="sans-serif" font-size="18" fill="#0a86c8">chapter menu</text>
+    <rect x="1580" y="440" width="350" height="460" rx="8" fill="none" stroke="#0a86c8" stroke-dasharray="4 4"/>
+    <text x="1600" y="480" font-family="sans-serif" font-size="18" fill="#0a86c8">explanation / info box</text>
+    <rect x="1580" y="930" width="350" height="100" rx="8" fill="none" stroke="#0a86c8" stroke-dasharray="4 4"/>
+    <text x="1600" y="970" font-family="sans-serif" font-size="18" fill="#0a86c8">back / next buttons</text>
+
+    <!-- cheat sheet -->
+    <g font-family="sans-serif" fill="#5b6875">
+      <text x="800" y="58" font-size="20" font-weight="bold" fill="#1c2630">ID NAMING CHEAT SHEET  (Ctrl+Shift+O → ID → Set)</text>
+      <text x="800" y="86" font-size="16"><tspan font-weight="bold">pipe-…</tspan>  one stroked path along the centreline, drawn in the flow direction</text>
+      <text x="800" y="108" font-size="16"><tspan font-weight="bold">fluid-…</tspan>  closed filled shape for a fluid region (colour / level can change)</text>
+      <text x="800" y="130" font-size="16"><tspan font-weight="bold">level-…</tspan>  rectangle whose height shows a liquid level (fills from the bottom)</text>
+      <text x="800" y="152" font-size="16"><tspan font-weight="bold">valve-…</tspan>  group: body + "valve-…-lever" group + "valve-…-pivot" small circle</text>
+      <text x="800" y="174" font-size="16"><tspan font-weight="bold">needle-…</tspan>  gauge needle group pointing at ZERO + "needle-…-pivot" circle</text>
+      <text x="800" y="196" font-size="16"><tspan font-weight="bold">rot-…</tspan>  part that spins or rotates (+ "rot-…-pivot")</text>
+      <text x="800" y="218" font-size="16"><tspan font-weight="bold">lamp-…</tspan>  alarm light / indicator that switches colour</text>
+      <text x="800" y="240" font-size="16"><tspan font-weight="bold">readout-…</tspan>  small rectangle where a live digital value is shown</text>
+      <text x="800" y="262" font-size="16"><tspan font-weight="bold">info-…</tspan>  small circle where an (i) button goes (popup text comes from the brief)</text>
+      <text x="800" y="284" font-size="16"><tspan font-weight="bold">show-…</tspan>  group/layer that only appears in some steps (gas pocket, alarm, leak…)</text>
+      <text x="800" y="306" font-size="16"><tspan font-weight="bold">hl-…</tspan>  optional: outline to highlight when a step talks about this part</text>
+      <text x="800" y="336" font-size="15" fill="#8f9aa4">Use lowercase, digits and dashes. Static artwork needs no ID. Keep labels as text (not paths). No blur filters.</text>
+    </g>
+  </g>
+
+</svg>
